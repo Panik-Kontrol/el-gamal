@@ -1,0 +1,3 @@
+javac Main.java
+javac BSGS.java
+java Main
