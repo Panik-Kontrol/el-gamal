@@ -2,33 +2,14 @@ import java.math.BigInteger;
 import java.util.Random;
 
 public class Main {
-	private static final int BITLENGTH = 29;
-	
+	private static final int BITLENGTH = 2048;
+	private static final int BITLENGTH_M = 29;
 	public static void main(String[] args) {
 		Random r = new Random();
-		/*BigInteger p = BigInteger.probablePrime(BITLENGTH,r);
-        BigInteger a = BigInteger.valueOf(0);
+		BigInteger m_size = BigInteger.probablePrime(BITLENGTH_M,r);
+		BigInteger p = BigInteger.probablePrime(BITLENGTH_M,r);
+        BigInteger a = getGcdOneRandom(p, r);
 
-        //System.out.println("p_temp: " + p_temp);
-        for(BigInteger i = BigInteger.valueOf(2); !i.mod(p.subtract(BigInteger.valueOf(2))).equals(BigInteger.ZERO); i = i.nextProbablePrime()) {
-        	//System.out.println("i: " + i);
-        	BigInteger temp = p.gcd(i);
-        	if(temp == BigInteger.valueOf(1)) {
-        		a = i;
-        		break;
-        	}
-        }
-        if(a == BigInteger.valueOf(0)) {
-        	System.out.print("ERROR: Couldn't find a generator!");
-        }
-        else {
-        	System.out.print("p: " + p);
-        	System.out.print("a: " + a);
-        }*/
-		
-		// Bob setting up el gamal parameters
-        BigInteger p = BigInteger.valueOf(29);
-        BigInteger a = BigInteger.valueOf(2);
         BigInteger d = getRandomNum(p, r);
         BigInteger B = myPow(a,d,p);
         System.out.println("Bob");
@@ -42,6 +23,7 @@ public class Main {
         BigInteger ke = myPow(a,i,p);
         //BigInteger ke = getGcdOneRandom(a,i,p,r);
         BigInteger km = myPow(B,i,p);
+//        BigInteger x = getRandomNum(m_size, r); // generating a message
         BigInteger x = getRandomNum(p, r); // generating a message
         System.out.println("Original message: " + x);
         x = myPow(a,x,p);
@@ -104,7 +86,7 @@ public class Main {
 		return result;
 	}
 	
-	private static BigInteger getGcdOneRandom(BigInteger base, BigInteger exponent , BigInteger mod, Random r) {
+	private static BigInteger getGcdOneRandom(BigInteger mod, Random r) {
 		BigInteger result = new BigInteger(mod.bitLength(), r);
 		if(result.compareTo(mod) >= 0 || !result.gcd(mod).equals(BigInteger.ONE)) {
 			result = new BigInteger(mod.bitLength(), r);
@@ -116,12 +98,12 @@ public class Main {
 		BigInteger return_val = BigInteger.ONE;
 		BigInteger val = eph_key;
 		boolean found = false;
-		for(int i = 0; i < p.intValue(); ++i) {
+		while(true) {
 			return_val = return_val.add(BigInteger.ONE);
-			System.out.println("val before: " + val);
-			val = val.multiply(eph_key);
-			System.out.println("val after: " + val.mod(p));
-			if(enc_mes.equals(val.mod(p))) {
+			//System.out.println("val before: " + val);
+			val = val.multiply(eph_key).mod(p);
+			//System.out.println("val after: " + val.mod(p));
+			if(enc_mes.equals(val)) {
 				found = true;
 				break;
 			}  
