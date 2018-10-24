@@ -40,9 +40,12 @@ public class Main {
         // Alice generating her keys and encrypting the message
         BigInteger i = getRandomNum(p, r);
         BigInteger ke = myPow(a,i,p);
+        //BigInteger ke = getGcdOneRandom(a,i,p,r);
         BigInteger km = myPow(B,i,p);
-        BigInteger x = getRandomNum(p, r);
-        System.out.println("Encrypting message: " + x);
+        BigInteger x = getRandomNum(p, r); // generating a message
+        System.out.println("Original message: " + x);
+        x = myPow(a,x,p);
+        System.out.println("Encrypted message using exponential el-gamal: " + x);
         BigInteger y = x.multiply(km).mod(p);
         System.out.println("\nAlice");
         System.out.println("i: " + i);
@@ -53,6 +56,8 @@ public class Main {
         // Bob decrypting
         BigInteger km2 = myPow(ke,d,p);
         BigInteger x2 = y.multiply(km2.modInverse(p)).mod(p);
+        // now need to factor x2
+        x2 = factorMessage(x2,a,p);
         System.out.println("Decrypted message: " + x2);
 	}
 	
@@ -97,5 +102,34 @@ public class Main {
 			result = new BigInteger(upper_limit.bitLength(), r);
 		}
 		return result;
+	}
+	
+	private static BigInteger getGcdOneRandom(BigInteger base, BigInteger exponent , BigInteger mod, Random r) {
+		BigInteger result = new BigInteger(mod.bitLength(), r);
+		if(result.compareTo(mod) >= 0 || !result.gcd(mod).equals(BigInteger.ONE)) {
+			result = new BigInteger(mod.bitLength(), r);
+		}
+		return result;
+	}
+	
+	private static BigInteger factorMessage(BigInteger enc_mes, BigInteger eph_key, BigInteger p) {
+		BigInteger return_val = BigInteger.ONE;
+		BigInteger val = eph_key;
+		boolean found = false;
+		for(int i = 0; i < p.intValue(); ++i) {
+			return_val = return_val.add(BigInteger.ONE);
+			System.out.println("val before: " + val);
+			val = val.multiply(eph_key);
+			System.out.println("val after: " + val.mod(p));
+			if(enc_mes.equals(val.mod(p))) {
+				found = true;
+				break;
+			}  
+		}
+		if(found) { return return_val; }
+		else {
+			System.out.println("Could not find the message.");
+			return BigInteger.valueOf(-1);
+		}
 	}
 }
