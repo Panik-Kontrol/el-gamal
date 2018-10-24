@@ -26,6 +26,7 @@ public class Main {
         	System.out.print("a: " + a);
         }*/
 		
+		// Bob setting up el gamal parameters
         BigInteger p = BigInteger.valueOf(29);
         BigInteger a = BigInteger.valueOf(2);
         BigInteger d = getRandomNum(p, r);
@@ -36,10 +37,12 @@ public class Main {
         System.out.println("d: " + d);
         System.out.println("B: " + B);
         
+        // Alice generating her keys and encrypting the message
         BigInteger i = getRandomNum(p, r);
         BigInteger ke = myPow(a,i,p);
         BigInteger km = myPow(B,i,p);
-        BigInteger x = new BigInteger("Andrew".getBytes());
+        BigInteger x = getRandomNum(p, r);
+        System.out.println("Encrypting message: " + x);
         BigInteger y = x.multiply(km).mod(p);
         System.out.println("\nAlice");
         System.out.println("i: " + i);
@@ -47,10 +50,10 @@ public class Main {
         System.out.println("km: " + km);
         System.out.println("y: " + y);       
         
-        
+        // Bob decrypting
         BigInteger km2 = myPow(ke,d,p);
-        BigInteger x2 = y.multiply(km2.modInverse(p));
-        System.out.println(x2.toByteArray());
+        BigInteger x2 = y.multiply(km2.modInverse(p)).mod(p);
+        System.out.println("Decrypted message: " + x2);
 	}
 	
 	public static BigInteger crt(BigInteger dec, BigInteger d, BigInteger p, BigInteger q, BigInteger n) {
