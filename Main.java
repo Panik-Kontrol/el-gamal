@@ -8,9 +8,9 @@ public class Main {
 		Random r = new Random();
 		BigInteger m_size = BigInteger.probablePrime(BITLENGTH_M,r);
 		BigInteger p = BigInteger.probablePrime(BITLENGTH_M,r);
-        BigInteger a = getGcdOneRandom(p, r);
+        BigInteger a = getGcdOneRandom(p.subtract(BigInteger.ONE), r);
 
-        BigInteger d = getRandomNum(p, r);
+        BigInteger d = getRandomNum(p.subtract(BigInteger.valueOf(2)), r);
         BigInteger B = myPow(a,d,p);
         System.out.println("Bob");
         System.out.println("p: " + p);
@@ -38,8 +38,10 @@ public class Main {
         // Bob decrypting
         BigInteger km2 = myPow(ke,d,p);
         BigInteger x2 = y.multiply(km2.modInverse(p)).mod(p);
+        BSGS test = new BSGS(x2, a, p);
         // now need to factor x2
-        x2 = factorMessage(x2,a,p);
+        x2 = test.calculateExponent1();
+        //x2 = factorMessage(x2,a,p);
         System.out.println("Decrypted message: " + x2);
 	}
 	
@@ -80,7 +82,7 @@ public class Main {
 	
 	private static BigInteger getRandomNum(BigInteger upper_limit, Random r) {
 		BigInteger result = new BigInteger(upper_limit.bitLength(), r);
-		if(result.compareTo(upper_limit) >= 0) {
+		if(result.compareTo(upper_limit) >= 0 || result.compareTo(BigInteger.ONE) <= 0) {
 			result = new BigInteger(upper_limit.bitLength(), r);
 		}
 		return result;
@@ -88,7 +90,7 @@ public class Main {
 	
 	private static BigInteger getGcdOneRandom(BigInteger mod, Random r) {
 		BigInteger result = new BigInteger(mod.bitLength(), r);
-		if(result.compareTo(mod) >= 0 || !result.gcd(mod).equals(BigInteger.ONE)) {
+		if(result.compareTo(mod) >= 0 || result.compareTo(BigInteger.ONE) <= 0 || !result.gcd(mod).equals(BigInteger.ONE)) {
 			result = new BigInteger(mod.bitLength(), r);
 		}
 		return result;
